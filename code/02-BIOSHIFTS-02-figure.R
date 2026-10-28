@@ -63,60 +63,66 @@ woodrat <- shifts |>
   select(param, rate = calc_rate, cv = cv_temp_median)
 
 # ===== Drawing =====
-# Both panel types draw on a 0-100 x 0-100 canvas; positions are canvas units.
+# Each panel is drawn on a 0-100 x 0-100 canvas. All x, y and lengths below
+# are canvas units.
 
-# Arrow length per percentage point, shared by the three left panels
-PCT_TO_UNITS <- 34 / 61
+# Left panels: arrow length = percent x UNITS_PER_PCT, one scale for all three
+# panels (a 61% arrow is 34 units long)
+UNITS_PER_PCT <- 34 / 61
 
-# One left panel; r = one row of panel_summary, z = size multiplier
-draw_arrow_panel <- function(r, title, z = 1) {
-  y0 <- 40   # baseline
+# r = one row of panel_summary; size_scale shrinks text and lines for the (b) panels
+draw_arrow_panel <- function(r, title, size_scale = 1) {
+  baseline       <- 40
+  opposite_len   <- r$opposite   * UNITS_PER_PCT
+  consistent_len <- r$consistent * UNITS_PER_PCT
+  arrow_head     <- arrow(length = unit(3.2 * size_scale, "mm"), type = "closed")
+
   ggplot() +
     annotate("text", x = 0, y = 99, label = title, hjust = 0, vjust = 1,
-             family = FONT, fontface = "bold", size = 5.2 * z, colour = COL_INK) +
-    annotate("segment", x = 18, xend = 88, y = y0, yend = y0,
+             family = FONT, fontface = "bold", size = 5.2 * size_scale, colour = COL_INK) +
+    annotate("segment", x = 18, xend = 88, y = baseline, yend = baseline,
              colour = "#E4E4E4", linewidth = 0.3) +
-    # opposite: down arrow
-    annotate("segment", x = 30, xend = 30, y = y0, yend = y0 - r$opposite * PCT_TO_UNITS,
-             colour = COL_OPPOSITE, linewidth = 2.4 * z,
-             arrow = arrow(length = unit(3.2 * z, "mm"), type = "closed")) +
-    annotate("text", x = 26, y = y0 - r$opposite * PCT_TO_UNITS / 2, hjust = 1,
+    # opposite: arrow down from the baseline, label beside its midpoint
+    annotate("segment", x = 30, xend = 30, y = baseline, yend = baseline - opposite_len,
+             colour = COL_OPPOSITE, linewidth = 2.4 * size_scale, arrow = arrow_head) +
+    annotate("text", x = 26, y = baseline - opposite_len / 2, hjust = 1,
              label = sprintf("%.0f%%", r$opposite), family = FONT,
-             fontface = "bold", size = 5.0 * z, colour = COL_OPPOSITE) +
-    # no shift: square on the baseline
-    annotate("point", x = 52, y = y0, shape = 22, size = 3.0 * z,
+             fontface = "bold", size = 5.0 * size_scale, colour = COL_OPPOSITE) +
+    # no shift: square on the baseline, label below
+    annotate("point", x = 52, y = baseline, shape = 22, size = 3.0 * size_scale,
              fill = COL_NO_SHIFT, colour = COL_NO_SHIFT) +
-    annotate("text", x = 52, y = y0 - 7, label = sprintf("%.0f%%", r$no_shift),
-             hjust = 0.5, family = FONT, fontface = "bold", size = 5.0 * z,
+    annotate("text", x = 52, y = baseline - 7, label = sprintf("%.0f%%", r$no_shift),
+             hjust = 0.5, family = FONT, fontface = "bold", size = 5.0 * size_scale,
              colour = COL_NO_SHIFT) +
-    # consistent: up arrow
-    annotate("segment", x = 74, xend = 74, y = y0, yend = y0 + r$consistent * PCT_TO_UNITS,
-             colour = COL_CONSISTENT, linewidth = 2.4 * z,
-             arrow = arrow(length = unit(3.2 * z, "mm"), type = "closed")) +
-    annotate("text", x = 78, y = y0 + r$consistent * PCT_TO_UNITS / 2, hjust = 0,
+    # consistent: arrow up from the baseline, label beside its midpoint
+    annotate("segment", x = 74, xend = 74, y = baseline, yend = baseline + consistent_len,
+             colour = COL_CONSISTENT, linewidth = 2.4 * size_scale, arrow = arrow_head) +
+    annotate("text", x = 78, y = baseline + consistent_len / 2, hjust = 0,
              label = sprintf("%.0f%%", r$consistent), family = FONT,
-             fontface = "bold", size = 5.0 * z, colour = COL_CONSISTENT) +
+             fontface = "bold", size = 5.0 * size_scale, colour = COL_CONSISTENT) +
     coord_cartesian(xlim = c(0, 100), ylim = c(0, 100), expand = FALSE) +
     theme_void() + theme(plot.margin = margin(2, 2, 2, 2))
 }
 
+# Species boxes: rates and climate velocity share one scale within a box,
+# set so the largest |value| in the box is BOX_MAX_ARROW units long
+BOX_MAX_ARROW  <- 11
+ROW_Y          <- c(LE = 62, O = 42, TE = 22)   # y of each range-position row
 POSITION_LABEL <- c(LE = "Cold edge", O = "Range center", TE = "Warm edge")
-ROW_Y          <- c(LE = 62, O = 42, TE = 22)   # canvas y of each range position
-FLAT_EPS       <- 0.15   # |rate| below this (m/yr) draws as a flat stub
-MIN_CV_UNITS   <- 1.6    # shorter velocity arrows are drawn at this length, "(not to scale)"
 fmt_signed     <- function(x) sprintf("%+.2f", x)
 
-# One species box; rates and velocity share one scale, largest |value| = 11 units
 draw_species_box <- function(rates, cv, title, sci_name, common_name, silhouette, cite) {
-  units_per_m <- 11 / max(abs(c(rates$rate, cv)))
-  d <- rates |> mutate(y   = ROW_Y[param],
-                       col = case_when(abs(rate) < FLAT_EPS ~ COL_NO_SHIFT,
-                                       rate > 0             ~ COL_CONSISTENT,
-                                       TRUE                 ~ COL_OPPOSITE),
-                       lab = fmt_signed(rate))
+  units_per_m <- BOX_MAX_ARROW / max(abs(c(rates$rate, cv)))
+  cv_len      <- cv * units_per_m
 
-  # Frame, titles, silhouette, rate unit label
-  g <- ggplot() +
+  # One row per range position: y, arrow length, colour by direction
+  rows <- rates |>
+    mutate(y      = ROW_Y[param],
+           length = rate * units_per_m,
+           colour = if_else(rate > 0, COL_CONSISTENT, COL_OPPOSITE))
+
+  ggplot() +
+    # frame, titles, silhouette
     annotate("rect", xmin = 0, xmax = 100, ymin = 0, ymax = 100,
              fill = "white", colour = COL_INK, linewidth = 1.2) +
     annotate("text", x = 6, y = 96, label = title, hjust = 0, vjust = 1,
@@ -127,10 +133,8 @@ draw_species_box <- function(rates, cv, title, sci_name, common_name, silhouette
              family = FONT, size = 4.1, colour = "#666666") +
     add_phylopic(img = silhouette, x = 83, y = 85, height = 17, fill = COL_INK) +
     annotate("text", x = 77, y = 70, label = "m/year", hjust = 0, vjust = 1,
-             family = FONT, size = 3.6, colour = COL_VELOCITY)
-
-  # Climate-velocity column, left of the divider
-  g <- g +
+             family = FONT, size = 3.6, colour = COL_VELOCITY) +
+    # climate-velocity column (left), divider
     annotate("text", x = 15, y = 72, label = "Climate velocity", hjust = 0.5,
              family = FONT, size = 3.8, colour = COL_VELOCITY) +
     annotate("text", x = 15, y = 65.5, hjust = 0.5, label = "m/year",
@@ -140,44 +144,24 @@ draw_species_box <- function(rates, cv, title, sci_name, common_name, silhouette
     annotate("segment", x = 7, xend = 23, y = ROW_Y[["O"]], yend = ROW_Y[["O"]],
              colour = "#DCDCDC", linewidth = 0.35) +
     annotate("segment", x = 31, xend = 31, y = 14, yend = 68,
-             colour = "#EDEDED", linewidth = 0.5)
-
-  cv_units  <- cv * units_per_m
-  off_scale <- abs(cv_units) < MIN_CV_UNITS
-  if (off_scale) cv_units <- sign(cv) * MIN_CV_UNITS
-  g <- g + annotate("segment", x = 15, xend = 15, y = ROW_Y[["O"]],
-                    yend = ROW_Y[["O"]] + cv_units, colour = COL_VELOCITY, linewidth = 2.1,
-                    # head tapers on short shafts
-                    arrow = arrow(length = unit(min(3.0, 0.55 * abs(cv_units)), "mm"),
-                                  type = "closed"))
-  if (off_scale)
-    g <- g + annotate("text", x = 15, y = ROW_Y[["O"]] - 7, label = "(not to scale)",
-                      hjust = 0.5, family = FONT, size = 3.0, colour = "#9A9A9A")
-
-  # Range-position rows: baseline, label, value, arrow
-  for (p in names(ROW_Y)) {
-    g <- g + annotate("segment", x = 56, xend = 74, y = ROW_Y[[p]], yend = ROW_Y[[p]],
-                      colour = "#DCDCDC", linewidth = 0.35)
-  }
-  for (i in seq_len(nrow(d))) {
-    r <- d[i, ]
-    g <- g +
-      annotate("text", x = 54, y = r$y, label = POSITION_LABEL[[r$param]], hjust = 1,
-               family = FONT, size = 4.4, colour = COL_INK) +
-      annotate("text", x = 77, y = r$y, label = r$lab, hjust = 0, family = FONT,
-               fontface = "bold", size = 4.9, colour = r$col)
-    if (abs(r$rate) < FLAT_EPS) {
-      g <- g + annotate("segment", x = 62, xend = 68, y = r$y, yend = r$y,
-                        colour = COL_NO_SHIFT, linewidth = 2.1)
-    } else {
-      g <- g + annotate("segment", x = 65, xend = 65, y = r$y,
-                        yend = r$y + r$rate * units_per_m, colour = r$col, linewidth = 2.1,
-                        arrow = arrow(length = unit(3.0, "mm"), type = "closed"))
-    }
-  }
-
-  g + annotate("text", x = 6, y = 3, label = cite, hjust = 0, vjust = 0,
-               family = FONT, size = 3.4, colour = COL_VELOCITY) +
+             colour = "#EDEDED", linewidth = 0.5) +
+    # velocity arrow; head shrinks on short arrows so it doesn't hide the shaft
+    annotate("segment", x = 15, xend = 15, y = ROW_Y[["O"]], yend = ROW_Y[["O"]] + cv_len,
+             colour = COL_VELOCITY, linewidth = 2.1,
+             arrow = arrow(length = unit(min(3.0, 0.55 * abs(cv_len)), "mm"), type = "closed")) +
+    # range-position rows: baseline, label, arrow, value
+    annotate("segment", x = 56, xend = 74, y = ROW_Y, yend = ROW_Y,
+             colour = "#DCDCDC", linewidth = 0.35) +
+    annotate("text", x = 54, y = rows$y, label = POSITION_LABEL[rows$param], hjust = 1,
+             family = FONT, size = 4.4, colour = COL_INK) +
+    annotate("segment", x = 65, xend = 65, y = rows$y, yend = rows$y + rows$length,
+             colour = rows$colour, linewidth = 2.1,
+             arrow = arrow(length = unit(3.0, "mm"), type = "closed")) +
+    annotate("text", x = 77, y = rows$y, label = fmt_signed(rows$rate), hjust = 0,
+             family = FONT, fontface = "bold", size = 4.9, colour = rows$colour) +
+    # citation
+    annotate("text", x = 6, y = 3, label = cite, hjust = 0, vjust = 0,
+             family = FONT, size = 3.4, colour = COL_VELOCITY) +
     coord_cartesian(xlim = c(0, 100), ylim = c(0, 100), expand = FALSE) +
     theme_void() + theme(plot.margin = margin(2, 2, 2, 2))
 }
@@ -187,9 +171,9 @@ draw_species_box <- function(rates, cv, title, sci_name, common_name, silhouette
 left <- draw_arrow_panel(filter(panel_summary, type == "ELE", eco == "Ter"),
                          "(a) Elevational shifts — terrestrial") /
         (draw_arrow_panel(filter(panel_summary, type == "LAT", eco == "Ter"),
-                          "(b) Latitudinal — terrestrial", z = 0.84) |
+                          "(b) Latitudinal — terrestrial", size_scale = 0.84) |
          draw_arrow_panel(filter(panel_summary, type == "LAT", eco == "Mar"),
-                          "Latitudinal — marine", z = 0.84))
+                          "Latitudinal — marine", size_scale = 0.84))
 
 # PhyloPic silhouettes: Abies magnifica (CC0); Peromyscus leucopus as a stand-in
 # for Neotoma (CC BY 4.0, Edwin Price; credit required)

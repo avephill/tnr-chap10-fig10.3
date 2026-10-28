@@ -15,41 +15,12 @@ in *The Nature Record*, Chapter 10 (Climate Change). Adapted from Lawlor et al.
 All values come from the BioShifts database (v2), accessed through the
 BioShiftR R package.
 
-## Run
-
-From the repository root, run each script in order:
-
-```
-code/00-BIOSHIFTS-00-download.R      downloads study-area polygons (OSF) and the US EEZ (Marine Regions) to data/source/
-code/01-BIOSHIFTS-01-us-study-areas.R   writes data/intermediate/us_study_areas.csv
-code/02-BIOSHIFTS-02-figure.R           writes results/fig10_3.svg and results/fig10_3.png
-```
-
-Paths are set in `code/0-0-project-settings.R`. Script 02 downloads the two
-silhouettes from PhyloPic, so it needs a network connection.
-
-## Requirements
-
-R 4.5.2. The BioShifts data package must be pinned to the commit the figure
-was built from, because its bundled data change without a version bump:
-
-```r
-remotes::install_github("Bioshifts/BioShiftR", ref = "1aa1d28001682cc418bf187c80827d9be727989b")
-```
-
-Other packages (versions used): dplyr 1.2.0, readr 2.2.0, ggplot2 4.0.2,
-patchwork 1.3.2, rphylopic 1.7.0, svglite 2.2.2, ragg 1.5.0, sf 1.0.24
-(GEOS 3.14.1), rnaturalearth 1.2.0, rnaturalearthdata 1.0.0.9000.
-
-The figure uses the Helvetica Neue font, which ships with macOS. On other
-systems the text will render in a substitute font.
-
 ## Data sources
 
 - BioShifts v2 via BioShiftR (Lawlor 2026), commit `1aa1d2800168`
 - BioShifts study-area polygons, https://osf.io/download/68b747593d97f9fb8567b34f/
 - US exclusive economic zone, Marine Regions (VLIZ), https://www.marineregions.org
-- US land, Natural Earth 1:50m admin-0 map units, via rnaturalearth
+- US land, Natural Earth 1:50m Admin 0 – Details: Map Units (`ne_50m_admin_0_map_units`), via rnaturalearth
 - Silhouettes, PhyloPic: *Abies magnifica* by T. Michael Keesey after MPF (CC0);
   *Peromyscus leucopus* by Edwin Price (CC BY 4.0), used as a stand-in because
   PhyloPic has no *Neotoma* silhouette
