@@ -1,7 +1,7 @@
 # Figure 10.3: observed species range shifts in the US
 
 Code for Figure 10.3, *Observed Species Range Shifts on Land and in the Ocean*,
-in the Climate Change chapter of the [report name]. Adapted from Lawlor et al.
+in *The Nature Record*, Chapter 10 (Climate Change). Adapted from Lawlor et al.
 (2024), Fig. 2.
 
 - **Panels (a) and (b):** the percentage of range-shift observations from
@@ -53,6 +53,12 @@ systems the text will render in a substitute font.
 - Silhouettes, PhyloPic: *Abies magnifica* by T. Michael Keesey after MPF (CC0);
   *Peromyscus leucopus* by Edwin Price (CC BY 4.0), used as a stand-in because
   PhyloPic has no *Neotoma* silhouette
+
+## License
+
+Code: MIT (see `LICENSE`). Data and silhouettes keep their own licenses; the
+*Peromyscus* silhouette (CC BY 4.0) must be credited wherever the figure is
+published.
 
 ## References
 
