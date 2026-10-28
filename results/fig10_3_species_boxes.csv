@@ -1,0 +1,8 @@
+"species","common_name","variable","rate_m_yr","source"
+"Abies magnifica","red fir","cold_edge",1.3,"Wright et al. 2016, Calif. Fish & Game"
+"Abies magnifica","red fir","range_center",1.87,"Wright et al. 2016, Calif. Fish & Game"
+"Abies magnifica","red fir","warm_edge",1.92,"Wright et al. 2016, Calif. Fish & Game"
+"Abies magnifica","red fir","climate_velocity",2.08,"BioShifts sp_cv.rds, cv_temp_median_res1km"
+"Neotoma cinerea","bushy-tailed woodrat","cold_edge",-8.94,"Moritz et al. 2008, Science"
+"Neotoma cinerea","bushy-tailed woodrat","warm_edge",6.88,"Moritz et al. 2008, Science"
+"Neotoma cinerea","bushy-tailed woodrat","climate_velocity",1.42,"BioShifts sp_cv.rds, cv_temp_median_res1km"

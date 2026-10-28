@@ -1,0 +1,10 @@
+"panel","gradient","realm","n_observations","variable","percent"
+"(a) Elevational shifts — terrestrial","elevational","terrestrial",6955,"opposite_to_isotherms",39.87
+"(a) Elevational shifts — terrestrial","elevational","terrestrial",6955,"no_shift",7.84
+"(a) Elevational shifts — terrestrial","elevational","terrestrial",6955,"consistent_with_isotherms",52.29
+"(b) Latitudinal — terrestrial","latitudinal","terrestrial",2926,"opposite_to_isotherms",38.76
+"(b) Latitudinal — terrestrial","latitudinal","terrestrial",2926,"no_shift",0.72
+"(b) Latitudinal — terrestrial","latitudinal","terrestrial",2926,"consistent_with_isotherms",60.53
+"(b) Latitudinal — marine","latitudinal","marine",595,"opposite_to_isotherms",37.98
+"(b) Latitudinal — marine","latitudinal","marine",595,"no_shift",10.76
+"(b) Latitudinal — marine","latitudinal","marine",595,"consistent_with_isotherms",51.26

@@ -1,16 +1,17 @@
-# Figure 10.3: observed species range shifts in the US
+# Figure 10.3 data: observed species range shifts in the US
 
-Code for Figure 10.3, *Observed Species Range Shifts on Land and in the Ocean*,
-in *The Nature Record*, Chapter 10 (Climate Change). Adapted from Lawlor et al.
-(2024), Fig. 2.
+Code that produces the data behind Figure 10.3, *Observed Species Range Shifts
+on Land and in the Ocean*, in *The Nature Record*, Chapter 10 (Climate Change).
+The figure was drawn separately from these two tables. Adapted from Lawlor et
+al. (2024), Fig. 2.
 
-- **Panels (a) and (b):** the percentage of range-shift observations from
-  studies whose study area overlaps the US (land or exclusive economic zone)
-  that moved in the same direction as local isotherms, the opposite direction,
-  or not at all.
-- **Right-hand boxes:** observed elevational shift rates for red fir (Wright et
-  al. 2016) and the bushy-tailed woodrat (Moritz et al. 2008), next to climate
-  velocity across each species' range.
+- **`results/fig10_3_left_panels.csv`, panels (a) and (b):** the percentage of
+  range-shift observations from studies whose study area overlaps the US (land
+  or exclusive economic zone) that moved in the same direction as local
+  isotherms, the opposite direction, or not at all.
+- **`results/fig10_3_species_boxes.csv`, species boxes:** observed elevational
+  shift rates for red fir (Wright et al. 2016) and the bushy-tailed woodrat
+  (Moritz et al. 2008), next to climate velocity across each species' range.
 
 All values come from the BioShifts database (v2), accessed through the
 BioShiftR R package.
@@ -19,17 +20,12 @@ BioShiftR R package.
 
 - BioShifts v2 via BioShiftR (Lawlor 2026), commit `1aa1d2800168`
 - BioShifts study-area polygons, https://osf.io/download/68b747593d97f9fb8567b34f/
-- US exclusive economic zone, Marine Regions (VLIZ), https://www.marineregions.org
+- US exclusive economic zone, Marine Regions (VLIZ), version 12, https://doi.org/10.14284/632
 - US land, Natural Earth 1:50m Admin 0 – Details: Map Units (`ne_50m_admin_0_map_units`), via rnaturalearth
-- Silhouettes, PhyloPic: *Abies magnifica* by T. Michael Keesey after MPF (CC0);
-  *Peromyscus leucopus* by Edwin Price (CC BY 4.0), used as a stand-in because
-  PhyloPic has no *Neotoma* silhouette
 
 ## License
 
-Code: MIT (see `LICENSE`). Data and silhouettes keep their own licenses; the
-*Peromyscus* silhouette (CC BY 4.0) must be credited wherever the figure is
-published.
+Code: MIT (see `LICENSE`). The source data keep their own licenses.
 
 ## References
 
